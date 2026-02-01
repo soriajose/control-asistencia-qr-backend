@@ -1,41 +1,37 @@
-package com.soriaajose.control.asistencia.qr.backend.organization.model;
+package com.soriaajose.control.asistencia.qr.backend.workshift.model;
 
+import com.soriaajose.control.asistencia.qr.backend.organization.model.Organization;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Entity
-@Table(name = "organizations")
+@Table(name = "work_shifts")
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Getter
 @Setter
-@Builder
-public class Organization {
+public class WorkShift {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String name; // "Mañana", "Tarde", etc.
 
-    @Column(name = "email")
-    private String email;
+    @Column(name = "start_time", nullable = false)
+    private LocalTime startTime;
 
-    @Column(name = "subdomain", unique = true, nullable = false)
-    private String subdomain;
+    @Column(name = "end_time", nullable = false)
+    private LocalTime endTime;
 
-    @Column(name = "qr_name")
-    private String qrName;
-
-    @Column(name = "qr_token", unique = true, nullable = false)
-    private String qrToken;
-
-    @Column(name = "tolerance_minutes")
-    private Integer toleranceMinutes;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organization_id", referencedColumnName = "id")
+    private Organization organization;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

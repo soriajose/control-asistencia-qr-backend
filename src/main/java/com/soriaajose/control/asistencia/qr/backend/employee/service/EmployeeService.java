@@ -9,6 +9,8 @@ import com.soriaajose.control.asistencia.qr.backend.role.model.Role;
 import com.soriaajose.control.asistencia.qr.backend.role.repository.RoleRepository;
 import com.soriaajose.control.asistencia.qr.backend.user.model.User;
 import com.soriaajose.control.asistencia.qr.backend.user.repository.UserRepository;
+import com.soriaajose.control.asistencia.qr.backend.workshift.model.WorkShift;
+import com.soriaajose.control.asistencia.qr.backend.workshift.repository.WorkShiftRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -29,6 +31,7 @@ public class EmployeeService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleRepository roleRepository;
+    private final WorkShiftRepository workShiftRepository;
 
     @Transactional
     public Long createEmployee(EmployeeRequestDTO request) {
@@ -54,6 +57,15 @@ public class EmployeeService {
         person.setOrganization(organization); // <--- ASIGNACIÓN AUTOMÁTICA
         person.setCreatedBy(user.getUsername());
         person.setCreatedAt(LocalDateTime.now());
+
+        if (request.getWorkShiftId() != null) {
+            WorkShift shift = workShiftRepository.findById(request.getWorkShiftId())
+                    .orElseThrow(() -> new RuntimeException("El turno seleccionado no existe"));
+
+            person.setWorkShift(shift);
+        } else {
+            throw new RuntimeException("El turno es obligatorio");
+        }
 
         // 4. Crear Usuario
         User newUser = new User();
@@ -98,6 +110,15 @@ public class EmployeeService {
         person.setPhone(request.getPhone());
         person.setUpdatedAt(LocalDateTime.now());
         person.setUpdatedBy(admin.getUsername());
+
+        if (request.getWorkShiftId() != null) {
+            WorkShift shift = workShiftRepository.findById(request.getWorkShiftId())
+                    .orElseThrow(() -> new RuntimeException("El turno seleccionado no existe"));
+
+            person.setWorkShift(shift);
+        } else {
+            throw new RuntimeException("El turno es obligatorio");
+        }
 
         // Solo actualizamos password si viene en el request (no es nula ni vacía)
         if (request.getPassword() != null && !request.getPassword().isBlank()) {
@@ -148,7 +169,7 @@ public class EmployeeService {
         // 1. Obtenemos solo el nombre de usuario (String) del contexto. Esto es seguro.
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 2. Buscamos al usuario "Fresco" en la BD.
+        // 2. Buscamos al usuario en la BD.
         // Como estamos dentro de @Transactional, este usuario estará "Vivo" (Attached).
         User currentUser = userRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -170,7 +191,6 @@ public class EmployeeService {
         return new PageDTO<>(employeePage);
     }
 
-    // Método auxiliar de mapeo
     private EmployeeResponseDTO mapToResponseDTO(User user) {
         return EmployeeResponseDTO.builder()
                 .id(user.getId())
@@ -179,6 +199,10 @@ public class EmployeeService {
                 .email(user.getPerson().getEmail())
                 .phone(user.getPerson().getPhone())
                 .username(user.getUsername())
+                .workShiftId(user.getPerson().getWorkShift() != null ? user.getPerson().getWorkShift().getId() : null)
+                .workShiftName(user.getPerson().getWorkShift() != null ? user.getPerson().getWorkShift().getName() : null)
+                .workShiftStartTime(user.getPerson().getWorkShift() != null ? user.getPerson().getWorkShift().getStartTime() : null)
+                .workShiftEndTime(user.getPerson().getWorkShift() != null ? user.getPerson().getWorkShift().getEndTime() : null)
                 .build();
     }
 }

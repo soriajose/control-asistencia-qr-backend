@@ -1,6 +1,7 @@
 package com.soriaajose.control.asistencia.qr.backend.person.model;
 
 import com.soriaajose.control.asistencia.qr.backend.organization.model.Organization;
+import com.soriaajose.control.asistencia.qr.backend.workshift.model.WorkShift;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -56,5 +57,9 @@ public class Person {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organization_id", referencedColumnName = "id", nullable = false)
     private Organization organization;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "work_shift_id", referencedColumnName = "id")
+    private WorkShift workShift;
 
 }

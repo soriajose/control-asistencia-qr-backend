@@ -47,4 +47,15 @@ public class OrganizationController {
         }
     }
 
+    @GetMapping("/tolerance")
+    public ResponseEntity<Integer> getTolerance() {
+        return ResponseEntity.ok(organizationService.getTolerance());
+    }
+
+    @PutMapping("/update-tolerance")
+    public ResponseEntity<Void> updateTolerance(@RequestBody Integer tolerance) {
+        organizationService.updateTolerance(tolerance);
+        return ResponseEntity.ok().build();
+    }
+
 }

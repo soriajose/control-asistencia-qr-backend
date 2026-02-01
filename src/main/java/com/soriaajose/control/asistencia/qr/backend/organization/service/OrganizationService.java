@@ -10,6 +10,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
@@ -46,6 +48,8 @@ public class OrganizationService {
         Organization org = user.getPerson().getOrganization();
 
         org.setQrName(newName);
+        org.setUpdatedAt(LocalDateTime.now());
+        org.setUpdatedBy(user.getUsername());
         organizationRepository.save(org);
     }
 
@@ -62,6 +66,8 @@ public class OrganizationService {
         String newToken = UUID.randomUUID().toString();
 
         org.setQrToken(newToken);
+        org.setUpdatedAt(LocalDateTime.now());
+        org.setUpdatedBy(user.getUsername());
 
         organizationRepository.save(org);
 
@@ -69,4 +75,37 @@ public class OrganizationService {
     }
 
 
+    @Transactional(readOnly = true)
+    public Integer getTolerance() {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Organization org = user.getPerson().getOrganization();
+
+        return org.getToleranceMinutes() != null ? org.getToleranceMinutes() : 0;
+    }
+
+    @Transactional
+    public void updateTolerance(Integer tolerance) {
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (tolerance == null || tolerance < 0) {
+            throw new RuntimeException("La tolerancia no puede ser negativa.");
+        }
+
+        Organization organization = user.getPerson().getOrganization();
+
+        organization.setToleranceMinutes(tolerance);
+        organization.setUpdatedAt(LocalDateTime.now());
+        organization.setUpdatedBy(user.getUsername());
+
+        organizationRepository.save(organization);
+    }
 }

@@ -2,6 +2,8 @@ package com.soriaajose.control.asistencia.qr.backend.employee.dto;
 
 import lombok.*;
 
+import java.time.LocalTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -15,5 +17,10 @@ public class EmployeeResponseDTO {
     private String email;
     private String phone;
     private String username;
+    // --- DATOS DEL TURNO ---
+    private Long workShiftId;
+    private String workShiftName;
+    private LocalTime workShiftStartTime;
+    private LocalTime workShiftEndTime;
 
 }

@@ -15,5 +15,6 @@ public class EmployeeRequestDTO {
     private String phone;
     private String username;
     private String password;
+    private Long workShiftId;
 
 }

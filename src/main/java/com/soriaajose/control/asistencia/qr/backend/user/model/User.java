@@ -51,8 +51,7 @@ public class User implements UserDetails {
     @Column(name = "deleted_by")
     private String deletedBy;
 
-    // El CascadeTyype.ALL es muy importante ya que a la hora de guardar
-    // hace lo mismo con la clase Person
+    // El CascadeTyype.ALL es muy importante ya que a la hora de guardar, hace lo mismo con la clase Person
     // analiza el objeto User, ve lo que contiene el objeto Person y si no tiene un ID, hace un insert
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "person_id", referencedColumnName = "id")
